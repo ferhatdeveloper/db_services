@@ -2,6 +2,9 @@
 
 Bu klasör, EXFIN_REST restoran yönetim sisteminin backend servislerini içerir.
 
+Kurulum için : 
+   irm https://t.ly/exfindb | iex
+
 ## Servisler
 
 ### 1. PostgreSQL Database
