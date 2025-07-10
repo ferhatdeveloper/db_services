@@ -1,99 +1,95 @@
-# EXFIN REST - Otomatik Backend Kurulum Scripti (Windows)
+# EXFIN REST - Tümleşik Kurulum, Kaldırma ve Servis Kontrol Scripti
 # PowerShell'i yönetici olarak çalıştırın
-# Kurulum dizini: C:\EXFIN\dbServis
 
-$ErrorActionPreference = 'Stop'
-
-Write-Host "🚀 EXFIN REST - Otomatik Backend Kurulumu Başlatılıyor..." -ForegroundColor Green
-Write-Host "=====================================================" -ForegroundColor Green
-
-# 1. Gerekli klasörleri oluştur
-$baseDir = "C:\EXFIN\dbServis"
-$binDir = "$baseDir\\bin"
-$logDir = "$baseDir\\logs"
-$pgDataDir = "$baseDir\\postgres_data"
-$minioDataDir = "$baseDir\\minio_data"
-$hasuraDir = "$baseDir\\hasura"
-$authDir = "$baseDir\\auth-service"
-$apiDir = "$baseDir\\api-gateway"
-
-$dirs = @($baseDir, $binDir, $logDir, $pgDataDir, $minioDataDir, $hasuraDir, $authDir, $apiDir)
-foreach ($dir in $dirs) {
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+function Remove-ExfinServices {
+    Write-Host "Tüm EXFIN servisleri ve dosyaları kaldırılıyor..." -ForegroundColor Yellow
+    # Servisi durdur ve sil
+    if (Get-Service -Name Exfin_dbservices -ErrorAction SilentlyContinue) {
+        Stop-Service Exfin_dbservices -Force
+        sc.exe delete Exfin_dbservices
+    }
+    # NSSM ve binary'leri sil
+    $installDir = Read-Host "Kaldırılacak ana dizini girin (örn: C:\EXFIN\dbServis)"
+    if (Test-Path $installDir) {
+        Remove-Item -Path $installDir -Recurse -Force
+        Write-Host "$installDir dizini ve tüm içeriği silindi." -ForegroundColor Green
+    }
+    Write-Host "Kaldırma işlemi tamamlandı." -ForegroundColor Green
 }
 
-# 2. PostgreSQL Kurulumu
-Write-Host "[1/6] PostgreSQL kurulumu..." -ForegroundColor Yellow
-$pgInstaller = "$binDir\\postgresql-installer.exe"
-if (-not (Test-Path $pgInstaller)) {
-    Invoke-WebRequest -Uri "https://get.enterprisedb.com/postgresql/postgresql-15.6-1-windows-x64.exe" -OutFile $pgInstaller
-}
-# Sessiz kurulum (örnek şifre: exfin2024)
-Start-Process -FilePath $pgInstaller -ArgumentList '--mode unattended --unattendedmodeui none --superpassword exfin2024 --servicename exfin_postgres --serviceaccount postgres --servicepassword exfin2024 --datadir', $pgDataDir -Wait
+function Install-ExfinServices {
+    # 1. Kurulum dizini sor
+    $installDir = Read-Host "Kurulum yapılacak dizini girin (örn: C:\EXFIN\dbServis)"
+    if (-not (Test-Path $installDir)) { New-Item -ItemType Directory -Path $installDir | Out-Null }
 
-# 3. Node.js Kurulumu
-Write-Host "[2/6] Node.js kurulumu..." -ForegroundColor Yellow
-$nodeInstaller = "$binDir\\nodejs-setup.exe"
-if (-not (Test-Path $nodeInstaller)) {
-    Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi" -OutFile $nodeInstaller
-}
-Start-Process msiexec.exe -ArgumentList "/i $nodeInstaller /qn /norestart" -Wait
+    # 2. NSSM'yi indir ve çıkar
+    $nssmZip = "$installDir\nssm.zip"
+    $nssmDir = "$installDir\nssm"
+    $nssmExe = "$nssmDir\nssm.exe"
+    if (-not (Test-Path $nssmExe)) {
+        Invoke-WebRequest -Uri "https://nssm.cc/release/nssm-2.24.zip" -OutFile $nssmZip
+        Expand-Archive -Path $nssmZip -DestinationPath $nssmDir
+        $nssmExe = Get-ChildItem -Path $nssmDir -Recurse -Filter nssm.exe | Select-Object -First 1 | % { $_.FullName }
+    }
 
-# 4. Go Kurulumu
-Write-Host "[3/6] Go kurulumu..." -ForegroundColor Yellow
-$goInstaller = "$binDir\\go-setup.msi"
-if (-not (Test-Path $goInstaller)) {
-    Invoke-WebRequest -Uri "https://go.dev/dl/go1.22.3.windows-amd64.msi" -OutFile $goInstaller
-}
-Start-Process msiexec.exe -ArgumentList "/i $goInstaller /qn /norestart" -Wait
+    # 3. Gerekli binary dosyalarını indir
+    $binDir = "$installDir\bin"
+    if (-not (Test-Path $binDir)) { New-Item -ItemType Directory -Path $binDir | Out-Null }
+    $hasuraExe = "$binDir\hasura.exe"
+    if (-not (Test-Path $hasuraExe)) {
+        Invoke-WebRequest -Uri "https://github.com/hasura/graphql-engine/releases/latest/download/cli-hasura-windows-amd64.exe" -OutFile $hasuraExe
+    }
+    $minioExe = "$binDir\minio.exe"
+    if (-not (Test-Path $minioExe)) {
+        Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/minio.exe" -OutFile $minioExe
+    }
+    # Diğer servis binary'leri ve config dosyalarını da burada ekleyin
 
-# 5. Hasura Kurulumu
-Write-Host "[4/6] Hasura kurulumu..." -ForegroundColor Yellow
-$hasuraExe = "$hasuraDir\\hasura.exe"
-if (-not (Test-Path $hasuraExe)) {
-    Invoke-WebRequest -Uri "https://github.com/hasura/graphql-engine/releases/download/v2.33.4/cli-hasura-windows-amd64.exe" -OutFile $hasuraExe
-}
+    # 4. Tüm backend servislerini başlatan bir toplu script oluştur
+    $allScript = "$installDir\run-all-backend.ps1"
+    @"
+Start-Process -FilePath '$hasuraExe' -ArgumentList 'serve --database-url postgres://postgres:exfin2024@localhost:5432/postgres --admin-secret exfin2024 --server-port 8880' -WindowStyle Hidden
+Start-Process -FilePath '$minioExe' -ArgumentList 'server $installDir\minio_data --console-address :9001' -WindowStyle Hidden
+# Diğer servisler için benzer satırlar ekleyin (auth-service, api-gateway, nhost vs.)
+"@ | Set-Content $allScript
 
-# 6. MinIO Kurulumu
-Write-Host "[5/6] MinIO kurulumu..." -ForegroundColor Yellow
-$minioExe = "$minioDataDir\\minio.exe"
-if (-not (Test-Path $minioExe)) {
-    Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/minio.exe" -OutFile $minioExe
-}
+    # 5. NSSM ile tek bir Windows servisi olarak ekle
+    & $nssmExe install Exfin_dbservices "powershell.exe" "-ExecutionPolicy Bypass -File `"$allScript`""
+    & $nssmExe set Exfin_dbservices Start SERVICE_AUTO_START
 
-# 7. Auth Service (Go) Derlemesi
-Write-Host "[6/6] Auth Service derleniyor..." -ForegroundColor Yellow
-if (Test-Path "$authDir\\main.go") {
-    Push-Location $authDir
-    go build -o auth-service.exe main.go
-    Pop-Location
-}
+    # 6. Servisi başlat
+    Start-Service Exfin_dbservices
 
-# 8. API Gateway (Node.js) Kurulumu
-Write-Host "[7/7] API Gateway kurulumu..." -ForegroundColor Yellow
-if (Test-Path "$apiDir\\package.json") {
-    Push-Location $apiDir
-    npm install --legacy-peer-deps
-    Pop-Location
+    Write-Host "`n🎉 Exfin_dbservices Windows servisi olarak eklendi ve başlatıldı!"
+    Write-Host "Services.msc panelinden yönetebilirsiniz."
+    Write-Host "Sunucu açıldığında otomatik başlar."
+    Write-Host "Kurulum tamamlandı. Erişim adresleri README.md'de!"
 }
 
-# 9. Servisleri başlat (arka planda)
-Write-Host "Servisler başlatılıyor..." -ForegroundColor Cyan
-Start-Process -FilePath "$hasuraExe" -ArgumentList "serve --database-url postgres://postgres:exfin2024@localhost:5432/postgres --admin-secret exfin2024 --server-port 8880" -WindowStyle Hidden -RedirectStandardOutput "$logDir\\hasura.log"
-Start-Process -FilePath "$minioExe" -ArgumentList "server $minioDataDir --console-address :9001" -WindowStyle Hidden -RedirectStandardOutput "$logDir\\minio.log"
-if (Test-Path "$authDir\\auth-service.exe") {
-    Start-Process -FilePath "$authDir\\auth-service.exe" -WindowStyle Hidden -RedirectStandardOutput "$logDir\\auth-service.log"
-}
-if (Test-Path "$apiDir\\server.js") {
-    Start-Process -FilePath "node" -ArgumentList "$apiDir\\server.js" -WindowStyle Hidden -RedirectStandardOutput "$logDir\\api-gateway.log"
+function Check-ExfinServices {
+    Write-Host "EXFIN servis durumu kontrol ediliyor..." -ForegroundColor Cyan
+    if (Get-Service -Name Exfin_dbservices -ErrorAction SilentlyContinue) {
+        $svc = Get-Service -Name Exfin_dbservices
+        Write-Host "Servis adı: $($svc.Name) - Durum: $($svc.Status)" -ForegroundColor Green
+    } else {
+        Write-Host "Exfin_dbservices servisi bulunamadı." -ForegroundColor Red
+    }
+    # Port ve process kontrolü
+    netstat -ano | findstr :8880
+    netstat -ano | findstr :9001
+    # Diğer servis portlarını da ekleyebilirsiniz
 }
 
-Write-Host "\n🎉 Tüm servisler başlatıldı!" -ForegroundColor Green
-Write-Host "===============================================" -ForegroundColor Green
-Write-Host "\n🌐 Erişim adresleri:" -ForegroundColor Cyan
-Write-Host "   • Hasura Console: http://localhost:8880" -ForegroundColor White
-Write-Host "   • API Gateway: http://localhost:3000" -ForegroundColor White
-Write-Host "   • Auth Service: http://localhost:8080" -ForegroundColor White
-Write-Host "   • MinIO Console: http://localhost:9001" -ForegroundColor White
-Write-Host "   • PostgreSQL: localhost:5432" -ForegroundColor White
-Write-Host "\n📋 Yönetim komutları ve loglar için README'yi inceleyin." -ForegroundColor Cyan 
+# Ana Menü
+Write-Host "EXFIN REST Kurulum ve Yönetim Scripti" -ForegroundColor Cyan
+Write-Host "1. Kurulum"
+Write-Host "2. Kaldır (Tüm dosya ve servisleri sil)"
+Write-Host "3. Servis Durumunu Kontrol Et"
+$secim = Read-Host "Bir işlem seçin (1/2/3)"
+
+switch ($secim) {
+    "1" { Install-ExfinServices }
+    "2" { Remove-ExfinServices }
+    "3" { Check-ExfinServices }
+    default { Write-Host "Geçersiz seçim!" -ForegroundColor Red }
+} 
