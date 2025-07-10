@@ -8,13 +8,7 @@
 irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 | iex
 ```
 
-### Seçenek 2: Kısa Link (Cloudflare korumalı)
-```powershell
-# Not: Bu link Cloudflare koruması altında olabilir
-irm https://t.ly/exfindb | iex
-```
-
-### Seçenek 3: Manuel İndirme
+### Seçenek 2: Manuel İndirme
 ```powershell
 # 1. Scripti indirin
 irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 -OutFile install.ps1
@@ -23,7 +17,7 @@ irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.p
 .\install.ps1
 ```
 
-### Seçenek 4: Git Clone
+### Seçenek 3: Git Clone
 ```powershell
 # 1. Projeyi klonlayın
 git clone https://github.com/ferhatdeveloper/db_services.git
@@ -33,11 +27,17 @@ cd db_services
 .\install.ps1
 ```
 
-### Seçenek 5: Quick Start (Batch)
+### Seçenek 4: Quick Start (Batch)
 ```powershell
 # Batch dosyası ile hızlı başlatma
 irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/quick-start.bat -OutFile quick-start.bat
 .\quick-start.bat
+```
+
+### Seçenek 5: Deploy Script
+```powershell
+# Deploy scripti ile kurulum
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/deploy-windows.ps1 | iex
 ```
 
 ## 📋 Manuel Kurulum
@@ -159,7 +159,7 @@ C:\EXFIN\dbServis\
 ## 🔍 Sorun Giderme
 
 ### Kısa Link Sorunu
-Eğer `irm https://t.ly/exfindb | iex` komutu çalışmazsa:
+**Not:** `https://t.ly/exfindb` linki Cloudflare koruması altında olduğu için PowerShell'de çalışmaz. Bunun yerine doğrudan GitHub linklerini kullanın:
 
 1. **Doğrudan GitHub linkini kullanın:**
    ```powershell

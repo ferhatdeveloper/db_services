@@ -12,9 +12,11 @@ function Resolve-ShortUrl {
         # Cloudflare korumalı linkler için alternatif çözümler
         switch ($ShortUrl) {
             "https://t.ly/exfindb" { 
+                Write-Host "⚠️  Kısa link Cloudflare koruması altında. Doğrudan GitHub'dan indiriliyor..." -ForegroundColor Yellow
                 return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
             }
             "https://bit.ly/exfin-install" {
+                Write-Host "⚠️  Kısa link Cloudflare koruması altında. Doğrudan GitHub'dan indiriliyor..." -ForegroundColor Yellow
                 return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
             }
             default {
@@ -28,7 +30,9 @@ function Resolve-ShortUrl {
         }
     }
     catch {
-        Write-Host "Kısa link çözümlenemedi. Doğrudan GitHub'dan indiriliyor..." -ForegroundColor Yellow
+        Write-Host "❌ Kısa link çözümlenemedi. Doğrudan GitHub'dan indiriliyor..." -ForegroundColor Red
+        Write-Host "💡 Önerilen: Doğrudan GitHub linkini kullanın:" -ForegroundColor Cyan
+        Write-Host "   irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 | iex" -ForegroundColor Green
         return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
     }
 }
