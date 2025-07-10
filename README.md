@@ -1,137 +1,199 @@
-# EXFIN_REST Backend
+# EXFIN REST Backend
 
-Bu klasör, EXFIN_REST restoran yönetim sisteminin backend servislerini içerir.
+## 🚀 Hızlı Kurulum (Tek Satır)
 
-Kurulum için : 
-   irm https://t.ly/exfindb | iex
-
-## Servisler
-
-### 1. PostgreSQL Database
-- **Port**: 5432
-- **Database**: exfin_rest
-- **Username**: exfin_user
-- **Password**: exfin_password123
-
-### 2. Hasura GraphQL Engine
-- **Port**: 8080
-- **Admin Secret**: exfin_admin_secret_2024
-- **Database URL**: postgres://exfin_user:exfin_password123@localhost:5432/exfin_rest
-
-### 3. Auth Service (Go)
-- **Port**: 8081
-- **JWT Secret**: exfin_jwt_secret_2024
-
-### 4. MinIO File Storage
-- **Port**: 9000 (API)
-- **Port**: 9001 (Web UI)
-- **Access Key**: exfin_minio_access
-- **Secret Key**: exfin_minio_secret_2024
-
-### 5. API Gateway (Node.js/Express)
-- **Port**: 3000
-
-## Kurulum Talimatları
-
-### 1. PostgreSQL Kurulumu
-
-#### Windows:
-1. PostgreSQL'i [resmi sitesinden](https://www.postgresql.org/download/windows/) indirin
-2. Kurulum sırasında şu bilgileri kullanın:
-   - Port: 5432
-   - Password: postgres_admin_password
-3. Kurulum tamamlandıktan sonra:
-```sql
-CREATE DATABASE exfin_rest;
-CREATE USER exfin_user WITH PASSWORD 'exfin_password123';
-GRANT ALL PRIVILEGES ON DATABASE exfin_rest TO exfin_user;
+### Seçenek 1: Doğrudan GitHub'dan (Önerilen)
+```powershell
+# PowerShell'i yönetici olarak çalıştırın, sonra:
+irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 | iex
 ```
 
-#### Linux (Ubuntu/Debian):
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo -u postgres psql
-CREATE DATABASE exfin_rest;
-CREATE USER exfin_user WITH PASSWORD 'exfin_password123';
-GRANT ALL PRIVILEGES ON DATABASE exfin_rest TO exfin_user;
-\q
+### Seçenek 2: Kısa Link (Cloudflare korumalı)
+```powershell
+# Not: Bu link Cloudflare koruması altında olabilir
+irm https://t.ly/exfindb | iex
 ```
 
-### 2. Hasura GraphQL Engine Kurulumu
+### Seçenek 3: Manuel İndirme
+```powershell
+# 1. Scripti indirin
+irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 -OutFile install.ps1
 
-#### Windows:
-1. [Hasura CLI](https://hasura.io/docs/latest/graphql/core/hasura-cli/install-hasura-cli/) kurun
-2. Hasura binary'sini [buradan](https://github.com/hasura/graphql-engine/releases) indirin
-3. Çalıştırın:
-```bash
-hasura.exe serve --database-url postgres://exfin_user:exfin_password123@localhost:5432/exfin_rest --admin-secret exfin_admin_secret_2024
+# 2. Çalıştırın
+.\install.ps1
 ```
 
-#### Linux:
-```bash
-# Hasura CLI kurulumu
-curl -L https://github.com/hasura/graphql-engine/releases/latest/download/cli-hasura-linux-amd64 -o hasura
-chmod +x hasura
-sudo mv hasura /usr/local/bin/
+### Seçenek 4: Git Clone
+```powershell
+# 1. Projeyi klonlayın
+git clone https://github.com/username/exfin-rest.git
+cd exfin-rest/backend
 
-# Hasura GraphQL Engine çalıştırma
-hasura serve --database-url postgres://exfin_user:exfin_password123@localhost:5432/exfin_rest --admin-secret exfin_admin_secret_2024
+# 2. Scripti çalıştırın
+.\install.ps1
 ```
 
-### 3. Auth Service (Go) Kurulumu
+## 📋 Manuel Kurulum
 
-#### Gereksinimler:
-- Go 1.21+ kurulu olmalı
+### Gereksinimler
+- Windows Server 2019/2022 veya Windows 10/11
+- PowerShell 5.1+
+- Yönetici hakları
+- İnternet bağlantısı
 
-#### Kurulum:
-```bash
-cd auth-service
-go mod tidy
-go build -o auth-service main.go
-./auth-service
+### Kurulum Adımları
+
+1. **PowerShell'i yönetici olarak açın**
+2. **Kurulum dizinine gidin:**
+   ```powershell
+   cd C:\EXFIN\dbServis
+   ```
+
+3. **Scripti çalıştırın:**
+   ```powershell
+   .\install.ps1
+   ```
+
+4. **Menüden "1" seçin (Kurulum)**
+
+### Kurulum İçeriği
+
+Script otomatik olarak şunları yapar:
+
+- ✅ **NSSM** (Windows servis yöneticisi) indirir
+- ✅ **Hasura CLI** (GraphQL engine) indirir  
+- ✅ **MinIO Server** (Object storage) indirir
+- ✅ **PostgreSQL** (Veritabanı) portable olarak indirir
+- ✅ **Config dosyaları** oluşturur
+- ✅ **Windows servisi** (Exfin_dbservices) oluşturur
+- ✅ **Tüm servisleri** otomatik başlatır
+
+## 🌐 Erişim Adresleri
+
+Kurulum tamamlandıktan sonra:
+
+| Servis | URL | Açıklama |
+|--------|-----|----------|
+| **Hasura Console** | http://localhost:8880 | GraphQL API yönetimi |
+| **MinIO Console** | http://localhost:9001 | Dosya depolama yönetimi |
+| **API Gateway** | http://localhost:3000 | REST API gateway |
+| **PostgreSQL** | localhost:5432 | Veritabanı |
+
+## 🔧 Yönetim
+
+### Servis Kontrolü
+```powershell
+# Servis durumunu kontrol et
+.\install.ps1
+# Menüden "3" seçin
+
+# Veya doğrudan:
+Get-Service Exfin_dbservices
 ```
 
-### 4. MinIO Kurulumu
+### Servis Başlatma/Durdurma
+```powershell
+# Servis başlat
+Start-Service Exfin_dbservices
 
-#### Windows:
-1. [MinIO binary'sini](https://min.io/download) indirin
-2. Çalıştırın:
-```bash
-minio.exe server C:\minio-data --console-address :9001
+# Servis durdur  
+Stop-Service Exfin_dbservices
+
+# Servis yeniden başlat
+Restart-Service Exfin_dbservices
 ```
 
-#### Linux:
-```bash
-wget https://dl.min.io/server/minio/release/linux-amd64/minio
-chmod +x minio
-./minio server /tmp/minio-data --console-address :9001
+### Windows Servis Yöneticisi
+```powershell
+# Servis yöneticisini aç
+services.msc
+# "Exfin_dbservices" servisini bulun
 ```
 
-### 5. API Gateway Kurulumu
+## 📁 Dizin Yapısı
 
-#### Gereksinimler:
-- Node.js 18+ kurulu olmalı
-
-#### Kurulum:
-```bash
-cd api-gateway
-npm install
-npm start
+```
+C:\EXFIN\dbServis\
+├── bin\                    # Binary dosyalar
+│   ├── hasura.exe         # Hasura CLI
+│   ├── minio.exe          # MinIO Server
+│   └── postgresql\        # PostgreSQL portable
+├── config\                 # Konfigürasyon dosyaları
+│   └── hasura-config.yaml
+├── data\                   # Veri dosyaları
+│   └── minio\             # MinIO verileri
+├── logs\                   # Log dosyaları
+└── run-all-backend.ps1    # Servis başlatma scripti
 ```
 
-## Servisleri Başlatma Sırası
+## 🗑️ Kaldırma
 
-1. PostgreSQL
-2. Hasura GraphQL Engine
-3. MinIO
-4. Auth Service
-5. API Gateway
+```powershell
+# Scripti çalıştırın
+.\install.ps1
+# Menüden "2" seçin (Kaldır)
+```
 
-## Veritabanı Şeması
+## 🔍 Sorun Giderme
 
-Veritabanı şeması `database/schema.sql` dosyasında tanımlanmıştır.
+### Kısa Link Sorunu
+Eğer `irm https://t.ly/exfindb | iex` komutu çalışmazsa:
 
-## Environment Variables
+1. **Doğrudan GitHub linkini kullanın:**
+   ```powershell
+   irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 | iex
+   ```
 
-Tüm servisler için gerekli environment değişkenleri `.env.example` dosyalarında bulunmaktadır. 
+2. **Manuel indirme yapın:**
+   ```powershell
+   irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 -OutFile install.ps1
+   .\install.ps1
+   ```
+
+3. **Script güncelleme özelliğini kullanın:**
+   ```powershell
+   .\install.ps1
+   # Menüden "4" seçin (Script Güncelle)
+   ```
+
+### Servis Başlamıyor
+1. **Logları kontrol edin:**
+   ```powershell
+   Get-Content C:\EXFIN\dbServis\logs\*.log
+   ```
+
+2. **Portları kontrol edin:**
+   ```powershell
+   netstat -ano | findstr ":8880"
+   netstat -ano | findstr ":9001"
+   ```
+
+3. **Process'leri kontrol edin:**
+   ```powershell
+   Get-Process | Where-Object {$_.ProcessName -like "*hasura*"}
+   Get-Process | Where-Object {$_.ProcessName -like "*minio*"}
+   ```
+
+### Yaygın Hatalar
+
+| Hata | Çözüm |
+|------|-------|
+| **"Access Denied"** | PowerShell'i yönetici olarak çalıştırın |
+| **"Port already in use"** | Eski servisleri durdurun: `Stop-Service Exfin_dbservices` |
+| **"Download failed"** | İnternet bağlantınızı kontrol edin |
+| **"Service not found"** | Kurulumu tekrar çalıştırın |
+| **"Cloudflare protection"** | Doğrudan GitHub linkini kullanın |
+
+## 📞 Destek
+
+- **GitHub Issues:** [Proje sayfası](https://github.com/username/exfin-rest/issues)
+- **Dokümantasyon:** [Wiki](https://github.com/username/exfin-rest/wiki)
+- **E-posta:** support@exfin.com
+
+## 📄 Lisans
+
+MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+---
+
+**Not:** Bu script Windows Server 2019/2022 ve Windows 10/11'de test edilmiştir. Diğer Windows sürümlerinde sorun yaşayabilirsiniz. 
