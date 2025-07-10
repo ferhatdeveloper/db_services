@@ -3,7 +3,8 @@
 Bu klasör, EXFIN_REST restoran yönetim sisteminin backend servislerini içerir.
 
 Kurulum için : 
-   irm https://t.ly/exfindb | iex
+Alternatif 1:   irm https://t.ly/exfindb | iex
+Alternatif 2:    irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 | iex
 
 ## Servisler
 
