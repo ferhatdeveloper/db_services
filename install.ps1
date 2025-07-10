@@ -12,10 +12,10 @@ function Resolve-ShortUrl {
         # Cloudflare korumalı linkler için alternatif çözümler
         switch ($ShortUrl) {
             "https://t.ly/exfindb" { 
-                return "https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1"
+                return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
             }
             "https://bit.ly/exfin-install" {
-                return "https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1"
+                return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
             }
             default {
                 # Normal HTTP redirect takibi
@@ -29,14 +29,14 @@ function Resolve-ShortUrl {
     }
     catch {
         Write-Host "Kısa link çözümlenemedi. Doğrudan GitHub'dan indiriliyor..." -ForegroundColor Yellow
-        return "https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1"
+        return "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
     }
 }
 
 # Otomatik güncelleme fonksiyonu
 function Update-Script {
     Write-Host "Script güncelleniyor..." -ForegroundColor Cyan
-    $scriptUrl = "https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1"
+    $scriptUrl = "https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1"
     try {
         $newScript = Invoke-RestMethod -Uri $scriptUrl
         $currentScript = Get-Content $PSCommandPath -Raw

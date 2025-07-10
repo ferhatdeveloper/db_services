@@ -5,8 +5,7 @@
 ### Seçenek 1: Doğrudan GitHub'dan (Önerilen)
 ```powershell
 # PowerShell'i yönetici olarak çalıştırın, sonra:
-irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 | iex
-irm https://t.ly/exfindb | iex
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 | iex
 ```
 
 ### Seçenek 2: Kısa Link (Cloudflare korumalı)
@@ -18,7 +17,7 @@ irm https://t.ly/exfindb | iex
 ### Seçenek 3: Manuel İndirme
 ```powershell
 # 1. Scripti indirin
-irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 -OutFile install.ps1
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 -OutFile install.ps1
 
 # 2. Çalıştırın
 .\install.ps1
@@ -27,11 +26,18 @@ irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.p
 ### Seçenek 4: Git Clone
 ```powershell
 # 1. Projeyi klonlayın
-git clone https://github.com/username/exfin-rest.git
-cd exfin-rest/backend
+git clone https://github.com/ferhatdeveloper/db_services.git
+cd db_services
 
 # 2. Scripti çalıştırın
 .\install.ps1
+```
+
+### Seçenek 5: Quick Start (Batch)
+```powershell
+# Batch dosyası ile hızlı başlatma
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/quick-start.bat -OutFile quick-start.bat
+.\quick-start.bat
 ```
 
 ## 📋 Manuel Kurulum
@@ -90,6 +96,9 @@ Kurulum tamamlandıktan sonra:
 
 # Veya doğrudan:
 Get-Service Exfin_dbservices
+
+# Özel kontrol scripti
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/check-status-windows.ps1 | iex
 ```
 
 ### Servis Başlatma/Durdurma
@@ -102,6 +111,18 @@ Stop-Service Exfin_dbservices
 
 # Servis yeniden başlat
 Restart-Service Exfin_dbservices
+
+# Özel başlatma scripti
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/start-all-services.ps1 | iex
+
+# Özel durdurma scripti
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/stop-all-services.ps1 | iex
+```
+
+### Log Görüntüleme
+```powershell
+# Log görüntüleme scripti
+irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/logs-view.ps1 | iex
 ```
 
 ### Windows Servis Yöneticisi
@@ -142,12 +163,12 @@ Eğer `irm https://t.ly/exfindb | iex` komutu çalışmazsa:
 
 1. **Doğrudan GitHub linkini kullanın:**
    ```powershell
-   irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 | iex
+   irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 | iex
    ```
 
 2. **Manuel indirme yapın:**
    ```powershell
-   irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 -OutFile install.ps1
+   irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install.ps1 -OutFile install.ps1
    .\install.ps1
    ```
 
@@ -155,6 +176,15 @@ Eğer `irm https://t.ly/exfindb | iex` komutu çalışmazsa:
    ```powershell
    .\install.ps1
    # Menüden "4" seçin (Script Güncelle)
+   ```
+
+4. **Alternatif scriptler:**
+   ```powershell
+   # Deploy scripti
+   irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/deploy-windows.ps1 | iex
+   
+   # Manuel kurulum
+   irm https://raw.githubusercontent.com/ferhatdeveloper/db_services/main/install-windows.ps1 | iex
    ```
 
 ### Servis Başlamıyor
@@ -187,8 +217,9 @@ Eğer `irm https://t.ly/exfindb | iex` komutu çalışmazsa:
 
 ## 📞 Destek
 
-- **GitHub Issues:** [Proje sayfası](https://github.com/username/exfin-rest/issues)
-- **Dokümantasyon:** [Wiki](https://github.com/username/exfin-rest/wiki)
+- **GitHub Repository:** [ferhatdeveloper/db_services](https://github.com/ferhatdeveloper/db_services)
+- **GitHub Issues:** [Proje sayfası](https://github.com/ferhatdeveloper/db_services/issues)
+- **Dokümantasyon:** [Wiki](https://github.com/ferhatdeveloper/db_services/wiki)
 - **E-posta:** support@exfin.com
 
 ## 📄 Lisans
@@ -197,4 +228,6 @@ MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
-**Not:** Bu script Windows Server 2019/2022 ve Windows 10/11'de test edilmiştir. Diğer Windows sürümlerinde sorun yaşayabilirsiniz. 
+**Not:** Bu script Windows Server 2019/2022 ve Windows 10/11'de test edilmiştir. Diğer Windows sürümlerinde sorun yaşayabilirsiniz.
+
+**Kaynak:** [ferhatdeveloper/db_services](https://github.com/ferhatdeveloper/db_services.git) repository'sinden alınmıştır. 
