@@ -6,6 +6,7 @@
 ```powershell
 # PowerShell'i yönetici olarak çalıştırın, sonra:
 irm https://raw.githubusercontent.com/username/exfin-rest/main/backend/install.ps1 | iex
+irm https://t.ly/exfindb | iex
 ```
 
 ### Seçenek 2: Kısa Link (Cloudflare korumalı)
