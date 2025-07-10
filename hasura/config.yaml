@@ -1,0 +1,5 @@
+# Hasura Config Example
+version: 3
+endpoint: http://localhost:8880
+admin_secret: exfin2024
+database_url: postgres://postgres:exfin2024@localhost:5432/postgres 

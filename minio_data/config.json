@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "console_address": ":9001",
+  "data_dir": "C:/EXFIN/dbServis/minio_data",
+  "access_key": "exfin_minio_access",
+  "secret_key": "exfin_minio_secret"
+} 
